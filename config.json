@@ -1,4 +1,4 @@
 {
     "name": "CTFd challenge dependencies",
-    "route": "/admin/custom_plugin_route"
+    "route": "/admin/dependencies"
 }
