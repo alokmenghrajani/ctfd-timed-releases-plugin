@@ -39,18 +39,45 @@ def _get_challenges_with_dependencies():
 @admins_only
 def dependencies():
     challenges = _get_challenges_with_dependencies()
-    return render_template("dependencies.njk", challenges=challenges)
+    return render_template("dependencies.html", challenges=challenges)
 
-@plugin_blueprint.route("/admin/dependencies/new", methods=["POST"])
+@plugin_blueprint.route("/admin/dependencies/<int:chal_id>/new", methods=["POST"])
 @admins_only
-@bypass_csrf_protection
-def new_dependency():
-    req = request.get_json()
-    dep = Dependencies(chalid=req["chalid"], dependson=req["dependency_id"])
-    db.session.add(dep)
-    db.session.commit()
+def new_dependency(chal_id):
+    chal = Challenges.query.filter_by(id=chal_id).first_or_404()
+    dep_chal_id = request.form.get("dependency_id")
+    if not dep_chal_id:
+        return jsonify({"error": "No dependency id defined!"}), 400
+    dep_chal = Challenges.query.filter_by(id=dep_chal_id).first()
+    if not dep_chal:
+        return jsonify({"error": "No dependency with that id!"}), 400
 
-    return jsonify({"msg": "nice"})
+    db.session.add(Dependencies(chalid=chal.id, dependson=dep_chal.id))
+    db.session.commit()
+    db.session.close()
+    return jsonify({"msg": "ok"})
+
+@plugin_blueprint.route("/admin/dependencies/<int:chal_id>/delete", methods=["POST"])
+@admins_only
+def delete_dependency(chal_id):
+    chal = Challenges.query.filter_by(id=chal_id).first_or_404()
+    dep_chal_id = request.form.get("dependency_id")
+    print dep_chal_id
+    print request.form
+    if not dep_chal_id:
+        return jsonify({"error": "No dependency id defined!"}), 400
+    dep_chal = Challenges.query.filter_by(id=dep_chal_id).first()
+    if not dep_chal:
+        return jsonify({"error": "No dependency with that id!"}), 400
+
+    deps = Dependencies.query.filter(
+            and_(Dependencies.chalid == chal.id, Dependencies.dependson == dep_chal.id)
+    ).all()
+    for dep in deps:
+        db.session.delete(dep)
+    db.session.commit()
+    db.session.close()
+    return jsonify({"msg": "ok"})
 
 def _get_challenges(team_id):
     solves = db.session.query(Solves.chalid).filter(Solves.teamid == team_id)
