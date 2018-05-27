@@ -1,5 +1,55 @@
 {% extends "admin/base.html" %}
 
 {% block content %}
-<h1>deps</h1>
+
+{% include "new_dependency.html" %}
+
+<div class="jumbotron">
+	<div class="container">
+		<h1>Challenge dependencies</h1>
+	</div>
+</div>
+
+<div class="container"
+    <div class="row">
+        <div>
+            <table id="challenges" class="table table-striped">
+                <thead>
+                <tr>
+                    <td><b>ID</b></td>
+                    <td><b>Name</b></td>
+                    <td><b>Dependencies</b></td>
+                    <td><b>Settings</b></td>
+                </tr>
+                </thead>
+                <tbody>
+                {% for challenge in challenges %}
+                    <tr>
+                        <td>{{ challenge.id }}</td>
+                        <td>{{ challenge.name}}</td>
+                        <td><ul style="list-style-type: none;">
+                        {% for dep in challenge.dependencies %}
+                            <li>
+                            {{ dep.name }}&nbsp;
+                            <span class="delete-dependency" data-toggle="tooltip"
+                                data-placement="top" chal-id="{{ challenge.id }}" 
+                                title="Delete dependency">
+                            <i class="btn-fa fas fa-times" aria-hidden="true" chal-id="{{ challenge.id }}"></i>
+                            </li>
+                        {% endfor %}
+                        </ul></td>
+                        <td>
+                            <span class="new-dependency" data-toggle="tooltip"
+                                data-placement="top" chal-id="{{ challenge.id }}" 
+                                title="New dependency">
+                            <i class="btn-fa fas fa-pencil-alt" aria-hidden="true" chal-id="{{ challenge.id }}"></i>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
 {% endblock %}

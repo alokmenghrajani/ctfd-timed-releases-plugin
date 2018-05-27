@@ -1,6 +1,7 @@
 from flask import jsonify, request, Blueprint, session, render_template
 from CTFd.models import db, Challenges, Solves, Tags
 from CTFd.plugins.challenges import get_chal_class
+from CTFd.plugins import bypass_csrf_protection
 from CTFd.challenges import challenges
 from CTFd.utils.decorators import (
     authed_only,
@@ -11,23 +12,45 @@ from CTFd.utils.decorators import (
 )
 from sqlalchemy import or_, and_
 from sqlalchemy.sql import exists
+from itertools import groupby
 from models import Dependencies
 
 plugin_blueprint = Blueprint("dependencies", __name__, template_folder="../assets")
 
+def _get_challenges_with_dependencies():
+    deps = Dependencies.query.order_by(Dependencies.chalid).all()
+    deps = { chalid: list(grp) for chalid, grp in groupby(deps, lambda x: x.chalid) }
+    chals = Challenges.query.order_by(Challenges.id).all()
+    chals_map = { c.id: c for c in chals }
+    def get_chal(id):
+        return { "id": id, "name": chals_map[id].name }
+
+    challenges = []
+    for chal in chals:
+        challenges += [{
+            "id": chal.id,
+            "name": chal.name,
+            "dependencies": map(lambda d: get_chal(d.dependson), deps.get(chal.id, []))
+        }]
+
+    return challenges
+
 @plugin_blueprint.route("/admin/dependencies", methods=["GET"])
 @admins_only
 def dependencies():
-    return render_template("dependencies.njk")
+    challenges = _get_challenges_with_dependencies()
+    return render_template("dependencies.njk", challenges=challenges)
 
-@plugin_blueprint.route("/admin/deps", methods=["GET"])
+@plugin_blueprint.route("/admin/dependencies/new", methods=["POST"])
 @admins_only
-def deps():
-    return jsonify({
-        "game": [
+@bypass_csrf_protection
+def new_dependency():
+    req = request.get_json()
+    dep = Dependencies(chalid=req["chalid"], dependson=req["dependency_id"])
+    db.session.add(dep)
+    db.session.commit()
 
-        ]
-    })
+    return jsonify({"msg": "nice"})
 
 def _get_challenges(team_id):
     solves = db.session.query(Solves.chalid).filter(Solves.teamid == team_id)
