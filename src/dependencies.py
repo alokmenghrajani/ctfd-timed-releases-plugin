@@ -1,8 +1,7 @@
-from flask import jsonify, request, Blueprint, session, render_template
-from CTFd.models import db, Challenges, Solves, Tags
+from flask import abort, jsonify, request, Blueprint, session, render_template
+from CTFd.models import db, Challenges, Solves, Tags, Hints
 from CTFd.plugins.challenges import get_chal_class
 from CTFd.plugins import bypass_csrf_protection
-from CTFd.challenges import challenges
 from CTFd.utils.decorators import (
     authed_only,
     admins_only,
@@ -16,6 +15,29 @@ from itertools import groupby
 from models import Dependencies
 
 plugin_blueprint = Blueprint("dependencies", __name__, template_folder="../assets")
+
+def _team_can_access_challenge(team_id, chal_id):
+    solves = db.session.query(Solves.chalid).filter(Solves.teamid == team_id).all()
+    deps = db.session.query(Dependencies.dependson).filter(Dependencies.chalid == chal_id).all()
+
+    return set(deps).issubset(set(solves))
+
+def satisfies_challenge_dependencies(f):
+    def wrapper(*args, **kwargs):
+        chal_id = kwargs.get("chal_id") or kwargs.get("chalid")
+        if chal_id and not _team_can_access_challenge(session.get("id", -1), chal_id):
+            abort(404)
+        return f(*args, **kwargs)
+    return wrapper
+
+def satisfies_hint_dependencies(f):
+    def wrapper(*args, **kwargs):
+        hint_id = kwargs.get("hint_id") or kwargs.get("hintid")
+        hint = Hint.query.filter_by(id=hint_id).first_or_404()
+        if not _team_can_access_challenge(session.get("id", -1), hint.chal):
+            abort(404)
+        return f(*args, **kwargs)
+    return wrapper
 
 def _get_challenges_with_dependencies():
     deps = Dependencies.query.order_by(Dependencies.chalid).all()
@@ -90,7 +112,6 @@ def _get_challenges(team_id):
 
     return db_chals.all()
 
-@challenges.route("/chals", methods=['GET'])
 @during_ctf_time_only
 @require_verified_emails
 @viewable_without_authentication(status_code=403)
