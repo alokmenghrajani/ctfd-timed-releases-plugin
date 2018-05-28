@@ -11,7 +11,7 @@ from sqlalchemy import and_
 from models import Dependencies
 from utils import get_challenges, get_challenges_with_dependencies
 
-plugin_blueprint = Blueprint("dependencies", __name__, template_folder="../assets")
+plugin_blueprint = Blueprint("dependencies", __name__, template_folder="assets")
 
 @plugin_blueprint.route("/admin/dependencies", methods=["GET"])
 @admins_only

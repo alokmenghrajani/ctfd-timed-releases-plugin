@@ -16,4 +16,4 @@ def load(app):
     wrap_method("challenges.hints_view", satisfies_hint_dependencies)
 
     app.register_blueprint(plugin_blueprint)
-    register_plugin_assets_directory(app, base_path='/plugins/ctfd-challenge-dependencies/assets/')
+    register_plugin_assets_directory(app, base_path='/plugins/challenge-dependencies/assets/')
