@@ -38,7 +38,7 @@
                             <input value="{{ nonce }}" name="nonce" hidden>
                             <input value="{{ dep.id }}" name="dependency_id" hidden>
                             <input type="text" style="border-width: 0; background-color: transparent;" 
-                                value= {{ dep.name }} disabled>
+                                value="{{ dep.name }}" disabled>
                             <span class="delete-dependency" data-toggle="tooltip"
                                 data-placement="top" chal-id="{{ challenge.id }}" 
                                 title="Delete dependency">
