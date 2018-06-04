@@ -7,7 +7,7 @@ Add dependencies to CTFd challenges. Verified working with CTFd version 1.2.0
 
 ## Install
 
-1. Copy the directory `CTFd/plugins/challenge-dependencies` to your CTFd installation under `CTFd/plugins/`
+1. clone this repository to your CTFd installation under `CTFd/plugins/`
 2. Start/restart your ctfd instance
 3. Thats it. At this point you should find a plugin menu item called "Challenge dependencies" under your admin panel. From there you can add and remove dependencies to challenges. When a team loads the challenge page, only challenges with satisfied dependencies will be shown
 
