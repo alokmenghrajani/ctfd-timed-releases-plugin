@@ -6,7 +6,7 @@ from utils import satisfies_challenge_dependencies, satisfies_hint_dependencies
 def load(app):
     def wrap_method(name, wrapper):
         old = app.view_functions[name]
-        app.view_functions[name] = satisfies_challenge_dependencies(old)
+        app.view_functions[name] = wrapper(old)
 
     app.db.create_all()
 
