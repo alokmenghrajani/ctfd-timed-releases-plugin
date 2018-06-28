@@ -17,6 +17,6 @@ I tried to make this plugin as un-intrusive as possible. Meaning it manipulates 
 
 The only API endpoint which is overwritten with a custom plugin function is `/chals` (only returns challenges which meets its dependencies).
 
-A wrapper function is also added to some other functions to prevent access to challenges with unmet dependencies. See the [load function](CTFd/plugins/challenge-dependencies/__init__.py) to fund out which ones.
+A wrapper function is also added to some other functions to prevent access to challenges with unmet dependencies. See the [load function](src/__init__.py) to fund out which ones.
 
 No pre existing database tables are manipulated. But a new table `dependencies` is added.
