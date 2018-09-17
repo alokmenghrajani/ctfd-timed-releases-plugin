@@ -1,6 +1,11 @@
-# ctfd-challenge-dependencies
-Add dependencies to CTFd challenges. Verified working with CTFd version 1.2.0
+# Timed Releases
+Adds timed releases to CTFd challenges.
 
+Participants can see when a challenge will be released. The challenge's data will only be visible once the time has
+elapsed.
+
+This plugin has been tested with CTFd version 1.2.0. It is recommended to combine this plugin with
+DynamicValueChallenge.
 
 ![admin panel](imgs/admin-panel.png)
 
@@ -9,14 +14,18 @@ Add dependencies to CTFd challenges. Verified working with CTFd version 1.2.0
 
 1. clone this repository to your CTFd installation under `CTFd/plugins/`
 2. Start/restart your ctfd instance
-3. Thats it. At this point you should find a plugin menu item called "Challenge dependencies" under your admin panel. From there you can add and remove dependencies to challenges. When a team loads the challenge page, only challenges with satisfied dependencies will be shown
+3. Thats it. At this point you should find a plugin menu item called "Challenge Timed Releases" under your admin panel.
+   From there you can set (or remove) the release time for a challenge.
+
+## Limitations
+
+* only supports timed releases of the challenges. Hints aren't supported.
+* once set, can't remove a timed release.
 
 ## Developer notes
 
-I tried to make this plugin as un-intrusive as possible. Meaning it manipulates as little as possible of pre existing routes and database structure. Hopefully this will make it easier to maintain with future CTFd versions.
+This plugin's code was written by forking [ctfd-challenge-dependencies](https://github.com/narhen/ctfd-challenge-dependencies).
 
-The only API endpoint which is overwritten with a custom plugin function is `/chals` (only returns challenges which meets its dependencies).
+We tried to keep the same philosophy of making the plugin as un-intrusive as possible.
 
-A wrapper function is also added to some other functions to prevent access to challenges with unmet dependencies. See the [load function](src/__init__.py) to fund out which ones.
-
-No pre existing database tables are manipulated. But a new table `dependencies` is added.
+No pre existing database tables are manipulated. But a new table `timed_releases` is added.

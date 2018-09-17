@@ -1,4 +1,4 @@
 {
-    "name": "Challenge dependencies",
-    "route": "/admin/dependencies"
+    "name": "Challenge Timed Releases",
+    "route": "/admin/timed_releases"
 }

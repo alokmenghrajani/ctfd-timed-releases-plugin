@@ -1,0 +1,57 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+
+<div class="jumbotron">
+	<div class="container">
+		<h1>Challenge Timed Releases</h1>
+	</div>
+</div>
+
+<div class="container">
+    <div id="errors" class="row">
+        <div class="col-md-12">
+            <h1 class="text-center" id="error-msg"></h1>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <table id="challenges" class="table table-striped">
+        <thead>
+        <tr>
+            <td><b>ID</b></td>
+            <td><b>Name</b></td>
+            <td><b>Timed Release</b></td>
+            <td><b>Update</b></td>
+        </tr>
+        </thead>
+        <tbody>
+        {% for challenge in challenges %}
+            <tr>
+                <td>{{ challenge.id }}</td>
+                <td>{{ challenge.name }}</td>
+								<td>{{ challenge.timed_release }}</td>
+                <td>
+                    <form class="update-timed-release" action="/admin/timed_releases/{{ challenge.id }}/update" method="POST">
+                        <input value="{{ nonce }}" name="nonce" hidden>
+												<input type="datetime-local" name="release" value="{{ challenge.update_timed_release }}">
+												&nbsp;
+                        <span data-toggle="tooltip" data-placement="top" title="Save Timed Release">
+                            <button style="background-color: transparent; border: none">
+                                <i class="btn-fa fas fa-plus" aria-hidden="true"></i>
+                            </button>
+                        </span>
+                    </form>
+									</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="/plugins/timed_releases/src/assets/timed_releases.js"></script>
+{% endblock %}

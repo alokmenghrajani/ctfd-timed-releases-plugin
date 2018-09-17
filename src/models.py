@@ -1,14 +1,13 @@
 from CTFd.models import db
 
-class Dependencies(db.Model):
+class TimedReleases(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     chalid = db.Column(db.Integer, db.ForeignKey('challenges.id'))
-    dependson = db.Column(db.Integer, db.ForeignKey('challenges.id'))
+    release = db.Column(db.DateTime)
 
-    def __init__(self, chalid, dependson):
+    def __init__(self, chalid, release):
         self.chalid = chalid
-        self.dependson = dependson
+        self.release = release
 
     def __repr__(self):
-        return '<dependency {}, {}>'.format(self.chalid, self.dependson)
-
+        return '<timed-release {}, {}>'.format(self.chalid, self.release)

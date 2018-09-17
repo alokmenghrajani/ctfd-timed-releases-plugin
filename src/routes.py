@@ -8,51 +8,37 @@ from CTFd.utils.decorators import (
     viewable_without_authentication
 )
 from sqlalchemy import and_
-from models import Dependencies
-from utils import get_challenges, get_challenges_with_dependencies
+from models import TimedReleases
+from utils import get_challenges, get_challenges_with_timed_releases
+import dateutil.parser
+import datetime
 
-plugin_blueprint = Blueprint("dependencies", __name__, template_folder="assets")
+plugin_blueprint = Blueprint("timed_releases", __name__, template_folder="assets")
 
-@plugin_blueprint.route("/admin/dependencies", methods=["GET"])
+@plugin_blueprint.route("/admin/timed_releases", methods=["GET"])
 @admins_only
-def dependencies():
-    challenges = get_challenges_with_dependencies()
-    return render_template("dependencies.html", challenges=challenges)
+def timed_releases():
+    challenges = get_challenges_with_timed_releases()
+    return render_template("timed_releases.html", challenges=challenges)
 
-@plugin_blueprint.route("/admin/dependencies/<int:chal_id>/new", methods=["POST"])
+@plugin_blueprint.route("/admin/timed_releases/<int:chal_id>/update", methods=["POST"])
 @admins_only
-def new_dependency(chal_id):
+def update_timed_release(chal_id):
     chal = Challenges.query.filter_by(id=chal_id).first_or_404()
-    dep_chal_id = request.form.get("dependency_id")
-    if not dep_chal_id:
-        return jsonify({"error": "No dependency id defined!"}), 400
-    dep_chal = Challenges.query.filter_by(id=dep_chal_id).first()
-    if not dep_chal:
-        return jsonify({"error": "No dependency with that id!"}), 400
+    release = request.form.get("release")
 
-    db.session.add(Dependencies(chalid=chal.id, dependson=dep_chal.id))
-    db.session.commit()
-    db.session.close()
-    return jsonify({"msg": "ok"})
+    # convert string of the form 2018-06-12T19:30 to a datetime
+    release = dateutil.parser.parse(release)
 
-@plugin_blueprint.route("/admin/dependencies/<int:chal_id>/delete", methods=["POST"])
-@admins_only
-def delete_dependency(chal_id):
-    chal = Challenges.query.filter_by(id=chal_id).first_or_404()
-    dep_chal_id = request.form.get("dependency_id")
-    print dep_chal_id
-    print request.form
-    if not dep_chal_id:
-        return jsonify({"error": "No dependency id defined!"}), 400
-    dep_chal = Challenges.query.filter_by(id=dep_chal_id).first()
-    if not dep_chal:
-        return jsonify({"error": "No dependency with that id!"}), 400
+    # update existing timed release or create a new one
+    tr = db.session.query(TimedReleases).filter(TimedReleases.chalid == chal_id).first()
+    if tr is None:
+        # if timed release didn't exist then create it
+        db.session.add(TimedReleases(chalid=chal.id, release=release))
+    else:
+        # if it already existed then update it
+        tr.release = release
 
-    deps = Dependencies.query.filter(
-            and_(Dependencies.chalid == chal.id, Dependencies.dependson == dep_chal.id)
-    ).all()
-    for dep in deps:
-        db.session.delete(dep)
     db.session.commit()
     db.session.close()
     return jsonify({"msg": "ok"})
@@ -61,7 +47,7 @@ def delete_dependency(chal_id):
 @require_verified_emails
 @viewable_without_authentication(status_code=403)
 def get_available_challenges():
-    db_chals = get_challenges(session.get("id", -1))
+    db_chals = get_challenges()
     response = {'game': []}
     for chal in db_chals:
         tags = [tag.tag for tag in Tags.query.add_columns('tag').filter_by(chal=chal.id).all()]
