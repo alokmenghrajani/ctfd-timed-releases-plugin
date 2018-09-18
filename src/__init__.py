@@ -20,5 +20,5 @@ def load(app):
     wrap_method("challenges.chal", satisfies_challenge_timed_releases)
 
     app.register_blueprint(plugin_blueprint)
-    register_plugin_assets_directory(app, base_path='/plugins/timed_releases/src/assets/')
-    register_plugin_script('/plugins/timed_releases/src/assets/countdown.js')
+    register_plugin_assets_directory(app, base_path='/plugins/ctfd-timed-releases-plugin/src/assets/')
+    register_plugin_script('/plugins/ctfd-timed-releases-plugin/src/assets/countdown.js')

@@ -19,8 +19,9 @@ DynamicValueChallenge.
 
 ## Limitations
 
-* only supports timed releases of the challenges. Hints aren't supported.
-* once set, can't remove a timed release.
+* Only supports timed releases of the challenges. Hints aren't supported.
+* Once set, a timed release can't be removed. A workaround is to set the date in the past.
+* This plugin doesn't play nice with plugins which extend Challenge. E.g. don't use it with DynamicValueChallenge.
 
 ## Developer notes
 
