@@ -50,14 +50,15 @@ def get_available_challenges():
     db_chals = get_challenges()
     response = {'game': []}
     for chal in db_chals:
-        tags = [tag.tag for tag in Tags.query.add_columns('tag').filter_by(chal=chal.id).all()]
-        chal_type = get_chal_class(chal.type)
+        tags = [tag.tag for tag in Tags.query.add_columns('tag').filter_by(chal=chal["id"]).all()]
+        chal_type = get_chal_class(chal["type"])
         response['game'].append({
-            'id': chal.id,
+            'id': chal["id"],
             'type': chal_type.name,
-            'name': chal.name,
-            'value': chal.value,
-            'category': chal.category,
+            'name': chal["name"],
+            'seconds_before_release': chal["seconds_before_release"],
+            'value': chal["value"],
+            'category': chal["category"],
             'tags': tags,
             'template': chal_type.templates['modal'],
             'script': chal_type.scripts['modal'],

@@ -5,7 +5,6 @@ from sqlalchemy.sql import exists
 from itertools import groupby
 from models import TimedReleases
 import datetime
-import pdb
 
 def get_challenges():
     now = datetime.datetime.now().replace(microsecond=0)
@@ -14,30 +13,17 @@ def get_challenges():
     timed_releases = TimedReleases.query.order_by(TimedReleases.id).all()
     timed_releases_map = { r.chalid: r for r in timed_releases }
 
-    def secondsToText(secs):
-        days = int(secs//86400)
-        hours = int((secs - days*86400)//3600)
-        minutes = int((secs - days*86400 - hours*3600)//60)
-        seconds = int(secs - days*86400 - hours*3600 - minutes*60)
-        if days > 0:
-            return "{0} day{1}, ".format(days, "s" if days!=1 else "") + "{0} hour{1}".format(hours, "s" if hours!=1 else "")
-        if hours > 0:
-            return "{0} hour{1}, ".format(hours, "s" if hours!=1 else "") + "{0} minute{1}".format(minutes, "s" if minutes!=1 else "")
-        if minutes > 0:
-            return "{0} minute{1}, ".format(minutes, "s" if minutes!=1 else "") + "{0} second{1}".format(seconds, "s" if seconds!=1 else "")
-        return "{0} second{1}".format(seconds, "s" if seconds!=1 else "")
-
     def time_left(r):
-        s = int((r - now).total_seconds())
-        return "<span class='countdown' data-time='" + str(s) + "'>" + secondsToText(s) + "</span>"
+        return int((r - now).total_seconds())
 
     challenges = []
     for chal in db_chals:
-        if chal.id in timed_releases_map and timed_releases_map[chal.id].release > now:
-            chal.name += "<br>" + time_left(timed_releases_map[chal.id].release)
+        chal = vars(chal)
+        if chal["id"] in timed_releases_map and timed_releases_map[chal["id"]].release > now:
+            chal["seconds_before_release"] = time_left(timed_releases_map[chal["id"]].release)
         else:
-            chal.name += "<br>&nbsp;"
-        challenges += [ chal ];
+            chal["seconds_before_release"] = 0
+        challenges += [ chal ]
 
     return challenges
 
