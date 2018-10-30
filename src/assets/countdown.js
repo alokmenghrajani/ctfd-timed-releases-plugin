@@ -6,8 +6,8 @@
     for (var i=0; i<elements.length; i++) {
       var element = elements[i];
       var seconds = element.getAttribute('data-time') - elapsed;
-      if (seconds == 0) {
-        element.textContent = '&nbsp;';
+      if (seconds <= 0) {
+        element.innerHTML = '&nbsp;';
         continue;
       }
       var days = (seconds / 86400)|0;
